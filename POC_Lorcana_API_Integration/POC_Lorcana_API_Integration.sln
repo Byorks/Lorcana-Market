@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35825.156 d17.13
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "POC_Lorcana_API_Integration", "POC_Lorcana_API_Integration.csproj", "{5FD83B76-77FD-4365-992C-D947D7EF9877}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5FD83B76-77FD-4365-992C-D947D7EF9877}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5FD83B76-77FD-4365-992C-D947D7EF9877}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5FD83B76-77FD-4365-992C-D947D7EF9877}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5FD83B76-77FD-4365-992C-D947D7EF9877}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DCE0A0AC-5FA6-43AC-A2C2-E83A03FA4EDA}
+	EndGlobalSection
+EndGlobal
