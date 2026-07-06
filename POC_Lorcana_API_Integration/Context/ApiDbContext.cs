@@ -13,6 +13,12 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options) : DbContext(op
         {
             e.Property(x => x.Id).IsRequired();
             e.HasKey(x => x.Id);
+
+            e.Property(x => x.DateAdded)
+            .HasColumnType("timestamp without time zone");
+
+            e.Property(x => x.DateModified)
+            .HasColumnType("timestamp without time zone");
         });
 
         base.OnModelCreating(mb);

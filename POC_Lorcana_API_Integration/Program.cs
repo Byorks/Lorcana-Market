@@ -12,7 +12,7 @@ builder.Services.AddScoped<ILorcanaApiIntegration, LorcanaApiIntegration>();
 
 builder.Services.AddDbContext<ApiDbContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("Default"));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("Default"));
 });
 
 
@@ -23,6 +23,14 @@ builder.Services.AddSwaggerGen();
 
 
 var app = builder.Build();
+
+// Faz a migração do banco de dados ao iniciar a aplicação
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
+
+    db.Database.Migrate();
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
