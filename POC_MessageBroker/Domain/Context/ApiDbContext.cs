@@ -1,11 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using POC_MessageBroker.Domains;
 
-namespace POC_MessageBroker.Context;
+namespace Domain.Context;
 
 public class ApiDbContext(DbContextOptions<ApiDbContext> options) : DbContext(options)
 {
-    public DbSet<Transacao> Cards { get; set; }
+    public DbSet<Transacao> Transacoes { get; set; }
 
     protected override void OnModelCreating(ModelBuilder mb)
     {
@@ -13,6 +12,9 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options) : DbContext(op
         {
             e.Property(x => x.Id).IsRequired();
             e.HasKey(x => x.Id);
+
+            e.HasIndex(x => x.CodigoId)
+                .IsUnique();
         });
 
         base.OnModelCreating(mb);

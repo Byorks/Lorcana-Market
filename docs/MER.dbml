@@ -1,0 +1,246 @@
+// Use DBML to define your database structure
+// Docs: https://dbml.dbdiagram.io/docs
+
+ 
+Table Users {
+  // Identificação
+  Id guid [primary key]
+
+  // Registro
+  Username varchar [not null]
+  Fullname nvarchar [not null]
+  Cpf nvarchar [not null, unique]
+  Email nvarchar [not null, unique]
+  BirthDate date [not null]
+  Cellphone nvarchar [not null]
+  
+  Role Roles
+  CreatedAt timestamp
+  PasswordHash nvarchar
+
+  DefaultAddressId guid [ref: < Addresses.Id] // pensar se isso resolve um user ter um endereço princípal 
+}
+
+Enum Roles {
+  Client
+  Admin
+} 
+
+Table Carts {
+  Id guid [primary key]
+
+  UserId guid [ref: - Users.Id]
+  // TotalValue double [not null] // calcular na hora sempre
+}
+
+// Tabela intermediária
+Table CartCard {
+  Id guid [primary key]
+
+  StockId guid [not null, ref: > Stock.Id]
+  CartId guid [not null, ref: > Carts.Id]
+  
+  CardQuantity int [not null]
+}
+
+Table Addresses {
+  Id guid [primary key]
+
+
+  Street varchar [not null]
+  Number varchar [not null]
+  Complement varchar 
+  Neighborhood varchar [not null]
+  City varchar [not null]
+  State varchar [not null]
+  
+  PostalCode varchar [not null]
+  Reference varchar
+  CreatedAt timestamp [not null]
+  UpdatedAt timestamp [not null]
+  
+  UserId guid [not null, ref: > Users.Id]
+}
+
+ 
+// Tabela Intermediária 
+Table FavoriteCards {
+  CardId guid [not null, ref: > Cards.Id]
+  UserId  guid [not null, ref: > Users.Id]
+}
+
+// Como garantir que existe apenas uma carta foil e n foil com o mesmo ID?
+// Não pode ter mais de dois registros da mesma carta no estoque
+// Colocar coluna card condition? 
+Table Stock {
+  Id guid [primary key]
+
+  CardQuantity int [not null]
+  ReservedQuantity int 
+  UnitPrice decimal [not null]
+  Foil bool [not null]
+  IsActive bool [not null]
+  
+  CardId guid [not null, ref: < Cards.Id]
+}
+
+Table Cards { 
+  // Identificação
+  Id guid [primary key]
+ 
+  // Nome
+  Name nvarchar [not null]
+
+  // Relacionamento (ou futuros FKs)
+  // SetId nvarchar [not null] // pode virar table
+  // SetName nvarchar [not null]// pode virar table
+
+  // Informações da carta
+  Artist nvarchar [not null]
+  Cost int  [not null]
+  Inkable bool [not null]
+  Lore int [not null]
+  Strength int [not null]
+  Willpower int [not null]
+  CardNum int [not null]
+  SetNum integer [not null]
+
+  // Descrições
+  BodyText nvarchar
+  FlavorText nvarchar // texto do personagem
+  Gamemode GamemodeCard // olhar dados pra entender
+
+  // Recursos
+  ImageUrl nvarchar [not null]
+  // ImageBase64 nvarchar [not null]
+
+  // Auditoria
+  DateAdded timestamp [not null]
+  DateModified timestamp [not null]
+  ViewCounter int [not null]
+
+  FranchiseId guid [not null, ref: > CardFranchise.Id]
+  TypeId guid [not null, ref: - CardType.Id]
+  RarityId guid [not null, ref: - CardRarity.Id]
+  SetId guid [not null, ref: - CardSet.Id]
+} 
+
+Enum GamemodeCard {
+  Lorcana
+}
+
+Table CardClassification {
+  CardId guid [ref: > Cards.Id]
+  ClassificationId guid [ref: > Classifications.Id]
+}
+
+// ex "Storyborn, Hero",
+Table Classifications {
+  Id guid [primary key]
+  Name varchar 
+}
+
+Table CardColors {
+  CardId guid [not null,ref: > Cards.Id]
+  ColorId guid [not null, ref: > Colors.Id]
+}
+
+Table Colors {
+  Id guid [primary key]
+  Name nvarchar [not null]
+}
+
+Table CardFranchise {
+ Id guid [primary key]
+ Name nvarchar [not null]
+}
+
+Table CardType{
+  Id guid [primary key]
+  Name varchar [not null]
+}
+
+
+Table CardRarity {
+  Id guid [primary key]
+  Name varchar [not null]
+}
+
+Table CardSet {
+  Id guid [primary key]
+  Code nvarchar // Fabled -> FBD
+  Name nvarchar [not null]
+  RealeaseDate date
+}
+
+// Tabela intermediária
+Table Orders {
+  Id guid [primary key] 
+  OrderId nvarchar [not null, unique] // para aparecer no pedido
+  DateAdded timestamp [not null]
+  ClientObservations nvarchar 
+
+  Subtotal decimal [not null, note: "apresenta o valor das cartas, sem frete"]
+  Discount decimal [note: "para uso de cupons"]
+  TotalValue decimal [not null]
+
+  Status OrderStatus [not null]
+ 
+  UserId guid [not null, ref: > Users.Id]
+} 
+
+Enum OrderStatus {
+  Pending
+  AwaitingPayment
+  Paid
+  Processing
+  Shipped
+  InTransit
+  Delivered
+  Completed
+  Cancelled
+  Returned
+}
+
+// Tabela intermediária
+Table OrderCard {
+  Id guid [primary key] // preciso colocar esse? 
+
+  OrderId guid [not null, ref: > Orders.Id]
+  StockId guid [not null, ref: > Stock.Id] // RESTRICT on delete
+  
+  // Snapshot
+  IsFoil bool [not null]
+  UnitPrice decimal [not null]
+  CardQuantity int [not null] // como posso reduzir de stock ao fazer pedidos?
+}
+
+Table Shipments {
+  Id guid [primary key]
+
+  // OrderId guid [not null, ref: < Orders.Id]
+  ShipmentType ShipmentType [not null]
+  ShipmentPrice decimal [not null]
+  TrackingCode nvarchar
+  ShipmentAt timestamp
+  DeliveredAt timestamp
+
+  Street varchar [not null]
+  Number varchar [not null]
+  Complement varchar 
+  Neighborhood varchar [not null]
+  City varchar [not null]
+  State varchar [not null]
+
+  OrderId guid [not null, ref: - Orders.Id]
+}
+
+Enum ShipmentType {
+  PAC
+  Sedex
+  Pickup
+  ACombinar
+}
+
+// Ref user_posts: Posts.user_id > Users.Id // many-to-one
+   

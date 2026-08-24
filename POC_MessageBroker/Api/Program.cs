@@ -1,15 +1,17 @@
+using Domain.Context;
 using Microsoft.EntityFrameworkCore;
-using POC_MessageBroker.Context;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddDbContext<ApiDbContext>(options =>
 {
-    options.UseNpgsql(builder.Configuration.GetConnectionString("Default"));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("Default"),
+        x => x.MigrationsAssembly("Domain"));
 });
 
 builder.Services.AddControllers();
+
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 

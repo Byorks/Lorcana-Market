@@ -12,10 +12,10 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["POC_MessageBroker.csproj", "."]
-RUN dotnet restore "./POC_MessageBroker.csproj"
+COPY ["POC_MessageBroker/POC_MessageBroker.csproj", "POC_MessageBroker/"]
+RUN dotnet restore "./POC_MessageBroker/POC_MessageBroker.csproj"
 COPY . .
-WORKDIR "/src/."
+WORKDIR "/src/POC_MessageBroker"
 RUN dotnet build "./POC_MessageBroker.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # Esta fase é usada para publicar o projeto de serviço a ser copiado para a fase final
