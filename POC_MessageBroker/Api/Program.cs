@@ -1,9 +1,15 @@
+using Api.Services;
+using Api.Services.Interfaces;
 using Domain.Context;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
+// Injeção de dependencia do serviço de publicação no RabbitMQ
+builder.Services.AddScoped<IRabbitMqPublisher, RabbitMqPublisher>();
+
 builder.Services.AddDbContext<ApiDbContext>(options =>
 {
     options.UseNpgsql(builder.Configuration.GetConnectionString("Default"),
