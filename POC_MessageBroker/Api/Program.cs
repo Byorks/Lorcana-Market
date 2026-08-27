@@ -2,6 +2,9 @@ using Api.Services;
 using Api.Services.Interfaces;
 using Domain.Context;
 using Microsoft.EntityFrameworkCore;
+using Worker;
+using Worker.Services;
+using Worker.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +12,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Injeção de dependencia do serviço de publicação no RabbitMQ
 builder.Services.AddScoped<IRabbitMqPublisher, RabbitMqPublisher>();
+builder.Services.AddScoped<IRabbitMqConsumer, RabbitMqConsumer>();
+builder.Services.AddScoped<ITransacaoService, TransacaoService>();
+
+builder.Services.AddHostedService<ProcessamentoTransacoesWorker>();
 
 builder.Services.AddDbContext<ApiDbContext>(options =>
 {

@@ -1,6 +1,6 @@
 ﻿using Domain.Enums;
 
-namespace Api.DTOs.Inputs;
+namespace Infrastructure.DTOs.Inputs;
 
 public class TransacaoMessageInput
 {

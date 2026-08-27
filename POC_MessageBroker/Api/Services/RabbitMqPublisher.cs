@@ -1,5 +1,5 @@
-﻿using Api.DTOs.Inputs;
-using Api.Services.Interfaces;
+﻿using Api.Services.Interfaces;
+using Infrastructure.DTOs.Inputs;
 using RabbitMQ.Client;
 using System.Text;
 using System.Text.Json;
@@ -35,7 +35,8 @@ public class RabbitMqPublisher : IRabbitMqPublisher
             durable: true,
             exclusive: false,
             autoDelete: false,
-            arguments: null);
+            arguments: null,
+            cancellationToken: cancellationToken);
 
         // Serializa a mensagem para json
         var jsonMessage = JsonSerializer.Serialize(transacao);

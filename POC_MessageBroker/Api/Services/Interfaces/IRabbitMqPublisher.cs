@@ -1,4 +1,4 @@
-﻿using Api.DTOs.Inputs;
+﻿using Infrastructure.DTOs.Inputs;
 
 namespace Api.Services.Interfaces;
 

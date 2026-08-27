@@ -1,5 +1,5 @@
-﻿using Api.DTOs.Inputs;
-using Api.Services.Interfaces;
+﻿using Api.Services.Interfaces;
+using Infrastructure.DTOs.Inputs;
 using Microsoft.AspNetCore.Mvc;
 
 namespace POC_MessageBroker.Controllers;
