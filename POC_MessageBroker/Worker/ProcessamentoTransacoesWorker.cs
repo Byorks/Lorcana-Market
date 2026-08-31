@@ -15,5 +15,8 @@ public class ProcessamentoTransacoesWorker : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         await _consumer.StartConsumerAsync(stoppingToken);
+
+        // Mantém o Worker vivo até o cancelamento
+        //await Task.Delay(Timeout.Infinite, stoppingToken);
     }
 }

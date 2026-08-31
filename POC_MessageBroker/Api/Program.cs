@@ -12,7 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Injeção de dependencia do serviço de publicação no RabbitMQ
 builder.Services.AddScoped<IRabbitMqPublisher, RabbitMqPublisher>();
-builder.Services.AddScoped<IRabbitMqConsumer, RabbitMqConsumer>();
+builder.Services.AddSingleton<IRabbitMqConsumer, RabbitMqConsumer>(); // Necessário o consumer ser singleton, pois o worker é singleton e o consumer também precisa ser singleton para não criar múltiplas conexões com o RabbitMQ.
 builder.Services.AddScoped<ITransacaoService, TransacaoService>();
 
 builder.Services.AddHostedService<ProcessamentoTransacoesWorker>();
@@ -27,6 +27,8 @@ builder.Services.AddControllers();
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
@@ -34,6 +36,8 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();

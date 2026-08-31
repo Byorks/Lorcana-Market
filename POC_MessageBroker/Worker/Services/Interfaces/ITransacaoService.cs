@@ -4,5 +4,5 @@ namespace Worker.Services.Interfaces;
 
 public interface ITransacaoService
 {
-    Task ProcessarAsync(TransacaoMessageInput transacao, CancellationToken cancellationToken = default);
+    Task<bool> ProcessarAsync(TransacaoMessageInput transacao, CancellationToken cancellationToken = default);
 }

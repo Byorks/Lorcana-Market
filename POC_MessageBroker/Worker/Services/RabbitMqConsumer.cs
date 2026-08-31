@@ -15,6 +15,9 @@ public class RabbitMqConsumer : IRabbitMqConsumer
     private readonly IServiceScopeFactory _scopeFactory;
     private const string QueueName = "transacoes";
 
+    private IConnection? _connection;
+    private IChannel? _channel;
+
     public RabbitMqConsumer(IServiceScopeFactory scopeFactory)
     {
         _scopeFactory = scopeFactory;
@@ -30,13 +33,13 @@ public class RabbitMqConsumer : IRabbitMqConsumer
     public async Task StartConsumerAsync(CancellationToken cancellationToken = default)
     {
         // Cria uma conexão com o RabbitMQ
-        await using var connection = await _factory.CreateConnectionAsync(cancellationToken);
+        _connection = await _factory.CreateConnectionAsync(cancellationToken);
 
         // Cria um canal de comunicação com o RabbitMQ
-        await using var channel = await connection.CreateChannelAsync();
+        _channel = await _connection.CreateChannelAsync();
 
         // Cria a fila caso não exista
-        await channel.QueueDeclareAsync(
+        await _channel.QueueDeclareAsync(
             queue: QueueName,
             durable: true,
             exclusive: false,
@@ -44,7 +47,7 @@ public class RabbitMqConsumer : IRabbitMqConsumer
             arguments: null,
             cancellationToken: cancellationToken);
 
-        var consumer = new AsyncEventingBasicConsumer(channel);
+        var consumer = new AsyncEventingBasicConsumer(_channel);
         consumer.ReceivedAsync += async (model, ea) => // ea = event args
         {
             try
@@ -63,18 +66,19 @@ public class RabbitMqConsumer : IRabbitMqConsumer
                     $"TipoTransacao={transacao.TipoTransacao}, " +
                     $"Valor={transacao.Valor}");
 
-                // TODO: Processar a mensagem aqui
-
                 await using var scope =
                     _scopeFactory.CreateAsyncScope();
 
                 var service =
                     scope.ServiceProvider.GetRequiredService<ITransacaoService>();
 
-                await service.ProcessarAsync(transacao);
+                bool success = await service.ProcessarAsync(transacao);
+
+                if (!success)
+                    throw new Exception("Falha ao processar a transação.");
 
                 // Confirma que a mensagem foi processada com sucesso
-                await channel.BasicAckAsync(
+                await _channel.BasicAckAsync(
                     deliveryTag: ea.DeliveryTag,
                     multiple: false);
             }
@@ -83,7 +87,7 @@ public class RabbitMqConsumer : IRabbitMqConsumer
                 Console.WriteLine("Erro ao processar a mensagem: " + ex.Message);
 
                 // Não foi possível processar, recoloca a mensagem na fila para tentar novamente
-                await channel.BasicNackAsync(
+                await _channel.BasicNackAsync(
                     deliveryTag: ea.DeliveryTag,
                     multiple: false,
                     requeue: true);
@@ -93,10 +97,19 @@ public class RabbitMqConsumer : IRabbitMqConsumer
         // Começa a consumir aqui
         // Aqui, basicamente nós dizemos ao RabbitMQ: "Quero que você me avise sempre que chegar uma mensagem nessa fila, e quando isso acontecer, execute o evento consumer.ReceivedAsync"
         // Fica funcionando continuamente
-        await channel.BasicConsumeAsync(
+        await _channel.BasicConsumeAsync(
             queue: QueueName,
             autoAck: false, // RabbitMQ não considera a mensagem automaticamente processada, precisamos confirmar manualmente
             consumer: consumer,
             cancellationToken: cancellationToken);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_channel is not null)
+            await _channel.DisposeAsync();
+
+        if (_connection is not null)
+            await _connection.DisposeAsync();
     }
 }
